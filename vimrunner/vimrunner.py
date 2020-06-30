@@ -548,6 +548,8 @@ class Client(object):
         """
         if not buf:
             buf = self.get_active_buffer()
+        if not buf:
+            return None
         return self.eval("getbufline(%s, %s, %s)" % (buf, lnum, end))
 
     def write_buffer(self, lnum, text):
