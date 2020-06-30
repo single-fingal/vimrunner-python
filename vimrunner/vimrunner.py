@@ -346,6 +346,7 @@ class Client(object):
             >>> client.command("ls")
 
         """
+        cmd = cmd.replace("'", "''")
         output = self.eval("VimrunnerPyEvaluateCommandOutput('%s')" % cmd)
         return output
         # could have been implemented like:
