@@ -242,7 +242,7 @@ class Server(object):
         """Used to send to server the :qa! command. Useful when we connected
         to server instead of starting it in a subprocess with start().
         """
-        self.remote_send(':qa!<Enter>')
+        self.remote_expr('execute(":qa!")')
 
     def remote_send(self, keys):
         """Sends the given keys to Vim server. A wrapper around --remote-send.
