@@ -20,6 +20,7 @@ import shutil
 import multiprocessing
 import subprocess
 import random
+import re
 import time
 
 #vimrc = os.path.join(os.path.dirname(
@@ -337,7 +338,9 @@ class Client(object):
             >>> client.type(':ls <Enter>')
 
         """
-        self.server.remote_send(keys)
+        self.feedkeys(re.sub(r'(<\S+?>)', r'\\\1', keys))
+        # async version:
+        # self.server.remote_send(keys)
 
     def command(self, cmd):
         """Send commands to a Vim server.
