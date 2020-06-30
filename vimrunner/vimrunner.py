@@ -310,11 +310,14 @@ class Server(object):
     def _get_abs_path(exe):
         """Uses 'which' shell command to get the absolute path of the
         executable."""
-        path = subprocess.check_output([shutil.which(exe)])
-        # output from subprocess, sockets etc. is bytes even in py3, so
-        # convert it to unicode
-        path = path.decode('utf-8')
-        return path.strip('\n')
+        if hasattr(shutil, 'which'):
+            return shutil.which(exe)
+        else:
+            path = subprocess.check_output(['which', exe])
+            # output from subprocess, sockets etc. is bytes even in py3, so
+            # convert it to unicode
+            path = path.decode('utf-8')
+            return path.strip('\n')
 
 
 class Client(object):
