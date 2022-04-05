@@ -545,7 +545,7 @@ class Client(object):
 
             >>> one_line = client.read_buffer("1")
             >>> two_lines = client.read_buffer("1", "2")
-            >>> all_lines = client.read_buffer("1", "$")
+            >>> all_lines = client.read_buffer("1", "'$'")
             >>> two_lines = client.read_buffer("line('$') - 1", "'$'")
 
         """
