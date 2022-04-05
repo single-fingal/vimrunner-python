@@ -20,6 +20,7 @@ import shutil
 import multiprocessing
 import subprocess
 import random
+import re
 import time
 
 #vimrc = os.path.join(os.path.dirname(
@@ -242,7 +243,7 @@ class Server(object):
         """Used to send to server the :qa! command. Useful when we connected
         to server instead of starting it in a subprocess with start().
         """
-        self.remote_send(':qa!<Enter>')
+        self.remote_expr('execute(":qa!")')
 
     def remote_send(self, keys):
         """Sends the given keys to Vim server. A wrapper around --remote-send.
@@ -310,11 +311,14 @@ class Server(object):
     def _get_abs_path(exe):
         """Uses 'which' shell command to get the absolute path of the
         executable."""
-        path = subprocess.check_output([shutil.which(exe)])
-        # output from subprocess, sockets etc. is bytes even in py3, so
-        # convert it to unicode
-        path = path.decode('utf-8')
-        return path.strip('\n')
+        if hasattr(shutil, 'which'):
+            return shutil.which(exe)
+        else:
+            path = subprocess.check_output(['which', exe])
+            # output from subprocess, sockets etc. is bytes even in py3, so
+            # convert it to unicode
+            path = path.decode('utf-8')
+            return path.strip('\n')
 
 
 class Client(object):
@@ -334,7 +338,9 @@ class Client(object):
             >>> client.type(':ls <Enter>')
 
         """
-        self.server.remote_send(keys)
+        self.feedkeys(re.sub(r'(<\S+?>)', r'\\\1', keys))
+        # async version:
+        # self.server.remote_send(keys)
 
     def command(self, cmd):
         """Send commands to a Vim server.
@@ -343,6 +349,7 @@ class Client(object):
             >>> client.command("ls")
 
         """
+        cmd = cmd.replace("'", "''")
         output = self.eval("VimrunnerPyEvaluateCommandOutput('%s')" % cmd)
         return output
         # could have been implemented like:
@@ -544,6 +551,8 @@ class Client(object):
         """
         if not buf:
             buf = self.get_active_buffer()
+        if not buf:
+            return None
         return self.eval("getbufline(%s, %s, %s)" % (buf, lnum, end))
 
     def write_buffer(self, lnum, text):
