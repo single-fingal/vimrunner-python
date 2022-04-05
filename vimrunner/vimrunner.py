@@ -359,15 +359,18 @@ class Client(object):
         """
         Calls the server's remote_expr() method to evaluate the expression.
 
-        Returns the String output of the expression, stripped by useless
-        whitespaces. Eg:
+        Returns the String output of the expression, with whitespace intact
+        --except for the last/trailing newline, if present.
 
             >>> # get the line number of the cursor
             >>> client.eval('line(".")')
 
         Note that Vim makes a clear distinction between ' and ".
         """
-        return self.server.remote_expr(expression).strip()
+        expr = self.server.remote_expr(expression)
+        if expr and expr[-1] == '\n':
+            expr = expr[:-1]
+        return expr
 
     def edit(self, filename):
         """Edits the file filename with Vim.
